@@ -7,12 +7,12 @@
     <authors>[[MaintainerName]]</authors>
     <owners>[[MaintainerName]]</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <license type="expression">[[LicenseType]]</license>
-    <projectUrl>[[ProjectUrl]]</projectUrl>
-    <iconUrl>[[IconUrl]]</iconUrl>
-    <packageSourceUrl>[[PackageSourceUrl]]</packageSourceUrl>
-    <docsUrl>[[DocsUrl]]</docsUrl>
-    <bugTrackerUrl>[[BugTrackerUrl]]</bugTrackerUrl>
+    <!--<license type="expression">[[LicenseType]]</license>-->
+    <!--<projectUrl>[[ProjectUrl]]</projectUrl>-->
+    <!--<iconUrl>[[IconUrl]]</iconUrl>-->
+    <!--<packageSourceUrl>[[PackageSourceUrl]]</packageSourceUrl>-->
+    <!--<docsUrl>[[DocsUrl]]</docsUrl>-->
+    <!--<bugTrackerUrl>[[BugTrackerUrl]]</bugTrackerUrl>-->
     <tags>[[PackageNameLower]] 64bit admin</tags>
     <summary>[[PackageSummary]]</summary>
     <description>
