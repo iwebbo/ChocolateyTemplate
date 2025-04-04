@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>[[PackageNameLower]]</id>
+    <version>[[PackageVersion]]</version>
+    <title>[[PackageName]] (64-bit)</title>
+    <authors>[[MaintainerName]]</authors>
+    <owners>[[MaintainerName]]</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">[[LicenseType]]</license>
+    <projectUrl>[[ProjectUrl]]</projectUrl>
+    <iconUrl>[[IconUrl]]</iconUrl>
+    <packageSourceUrl>[[PackageSourceUrl]]</packageSourceUrl>
+    <docsUrl>[[DocsUrl]]</docsUrl>
+    <bugTrackerUrl>[[BugTrackerUrl]]</bugTrackerUrl>
+    <tags>[[PackageNameLower]] 64bit admin</tags>
+    <summary>[[PackageSummary]]</summary>
+    <description>
+# [[PackageName]] (64-bit)
+
+[[PackageDescription]]
+
+## Notes
+- This package is specifically compiled for 64-bit architecture.
+- [[AdditionalNotes]]
+    </description>
+    <releaseNotes>[[ReleaseNotes]]</releaseNotes>
+    <dependencies>
+      <dependency id="chocolatey-core.extension" version="1.3.5.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
