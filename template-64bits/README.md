@@ -1,127 +1,119 @@
-# Chocolatey Template for 64-bit Applications with Local Installer
+# Enterprise Chocolatey Template for 64-bit Applications
 
-This template is designed to create Chocolatey packages specifically configured for 64-bit applications using a local installer file.
+This template is designed to create Chocolatey packages for enterprise environments, supporting a wide range of 64-bit applications from a local installer file, with intelligent detection of installer types.
+
+## Key Features
+
+- **Automatic installer type detection** for various applications (dotnet, Java, browsers, etc.)
+- **Smart silent arguments configuration** based on installer type
+- **Automatic checksum calculation** for file integrity verification
+- **Post-installation testing** for runtime environments
+- **Support for multiple installer formats** (.exe, .msi, .msixbundle, .msp)
+- **Detailed logging** for troubleshooting
 
 ## Usage
 
 1. Create a new package based on this template:
    ```
-   choco new mypackage -t=64bit-local
+   Copy template-64bits in C:\ProgramData\chocolatey\templates
+   choco new mypackage -t=template-64bit
    ```
 
 2. Download the 64-bit installer for your application and rename it:
-   - The file should be named `[packagename]-x64.exe` or `[packagename]-x64.msi`
-   - For example, if your package is named "mypackage", the installer should be named `mypackage-x64.exe`
+   - Name format: `[packagename]-x64.[extension]`
+   - Example: `firefox-x64.exe` for a Firefox package
    - Place this file in the `tools` folder of your package
 
 3. Edit the generated files with information specific to your package:
    - `mypackage.nuspec`: General package information
-   - `tools/chocolateyInstall.ps1`: Installation script (adjust silent installation arguments)
-   - `tools/chocolateyUninstall.ps1`: Uninstallation script
+   - Other settings will be automatically detected
 
 4. Build the package:
    ```
    choco pack mypackage.nuspec
    ```
 
-## Template Variables
-
-- `[[PackageName]]`: Package name
-- `[[PackageNameLower]]`: Package name in lowercase
-- `[[PackageVersion]]`: Package version
-- `[[MaintainerName]]`: Maintainer's name
-- `[[InstallerType]]`: Installer type ('exe' or 'msi')
-- `[[SilentArgs]]`: Arguments for silent installation
-- `[[UninstallArgs]]`: Arguments for silent uninstallation
-- `[[LicenseType]]`: License type (e.g., MIT, Apache-2.0)
-- `[[ProjectUrl]]`: Project URL
-- `[[IconUrl]]`: Icon URL
-- `[[PackageSourceUrl]]`: Package source code URL
-- `[[DocsUrl]]`: Documentation URL
-- `[[BugTrackerUrl]]`: Bug tracker URL
-- `[[PackageSummary]]`: Package summary
-- `[[PackageDescription]]`: Detailed package description
-- `[[AdditionalNotes]]`: Additional notes
-- `[[ReleaseNotes]]`: Release notes
-
-## Practical Example: DBeaver
-
-1. Create the package:
-   ```powershell
-   choco new dbeaver-ce -t=64bit-local
+5. Test the package locally:
+   ```
+   choco install mypackage -s="." -f --debug --verbose
    ```
 
-2. Download and rename the DBeaver Community Edition 64-bit installer:
-   ```powershell
-   # Download the file
-   Invoke-WebRequest -Uri "https://dbeaver.io/files/dbeaver-ce-latest-x86_64-setup.exe" -OutFile "dbeaver-ce-x64.exe"
-   
-   # Move to the tools folder
-   Move-Item "dbeaver-ce-x64.exe" "dbeaver-ce\tools\"
-   ```
+## Supported Installer Types
 
-3. Edit `chocolateyInstall.ps1` to set the correct silent installation arguments:
-   ```powershell
-   $packageArgs = @{
-     # ... other parameters already present ...
-     silentArgs     = '/S /ALLUSERS'
-   }
-   ```
+The template automatically detects and configures appropriate silent installation arguments for:
 
-4. Build the package:
-   ```powershell
-   choco pack dbeaver-ce\dbeaver-ce.nuspec
-   ```
+| Installer Type | Detection Method | Silent Arguments |
+|----------------|------------------|------------------|
+| Inno Setup | File metadata | `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-` |
+| NSIS | File metadata | `/S` |
+| InstallShield | File metadata | `/s /v"/qn /norestart"` |
+| Microsoft (.NET) | Product name | `/install /quiet /norestart` |
+| Java | Company/product info | `/s REBOOT=0 SPONSORS=0 AUTO_UPDATE=0` |
+| MSI | File extension | `/qn /norestart` |
+| MSIX/AppX | File extension | Uses Add-AppxPackage cmdlet |
+| Other types | Default | `/quiet /norestart` |
 
-## Common Silent Installation Arguments
+## Examples for Common Applications
 
-### EXE Installers
-```powershell
-# For InnoSetup installers
-silentArgs     = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-'
-
-# For NSIS installers
-silentArgs     = '/S'
-
-# For InstallShield installers
-silentArgs     = '/s /v"/qn /norestart"'
+### Microsoft .NET Runtime
+```
+choco new dotnet-runtime -t=enterprise-64bit
+# Download dotnet-runtime-8.0.x-win-x64.exe to tools/dotnet-runtime-x64.exe
+# Package will automatically use correct silent arguments: /install /quiet /norestart
 ```
 
-### MSI Installers
-```powershell
-# Standard MSI arguments
-silentArgs     = '/qn /norestart'
-
-# With additional properties
-silentArgs     = '/qn /norestart ALLUSERS=1 REBOOT=ReallySuppress'
+### Firefox
+```
+choco new firefox -t=enterprise-64bit
+# Download Firefox installer to tools/firefox-x64.exe
+# Package will automatically detect NSIS installer and use /S silent argument
 ```
 
-## Advanced Tips
+### Java Runtime
+```
+choco new jre -t=enterprise-64bit
+# Download Java installer to tools/jre-x64.exe
+# Package will automatically detect Java installer and use appropriate arguments
+```
 
-- **Automatic checksum calculation**: You can add this code to your installation script to automatically calculate the checksum:
-  ```powershell
-  # Calculate checksum automatically
-  $actualChecksum = Get-FileHash -Path $fileLocation -Algorithm SHA256 | Select-Object -ExpandProperty Hash
-  Write-Host "File checksum: $actualChecksum"
-  
-  $packageArgs.Add("checksum64", $actualChecksum)
-  $packageArgs.Add("checksumType64", 'sha256')
-  ```
+## Testing Your Package
 
-- **Multiple format support**: If your application can have different installation formats, you can adapt the code:
-  ```powershell
-  # Look for installer in multiple possible formats
-  $possibleExtensions = @('exe', 'msi', 'zip')
-  $fileLocation = $null
-  
-  foreach ($ext in $possibleExtensions) {
-      $possibleFile = Join-Path $toolsDir "[[PackageNameLower]]-x64.$ext"
-      if (Test-Path $possibleFile) {
-          $fileLocation = $possibleFile
-          $packageArgs.fileType = $ext
-          break
-      }
-  }
-  ```
+1. Build the package:
+   ```
+   choco pack mypackage.nuspec
+   ```
 
-Note: Chocolatey packages containing large installers are generally not accepted in the public Chocolatey.org repository, but they are perfect for private/enterprise repositories.
+2. Install the package locally:
+   ```
+   choco install mypackage -s="." -f
+   ```
+
+3. For debugging installation issues:
+   ```
+   choco install mypackage -s="." -f --debug --verbose
+   ```
+
+4. Check installation logs:
+   ```
+   Get-Content "C:\ProgramData\chocolatey\logs\chocolatey.log" -Tail 50
+   ```
+
+5. Uninstall to test removal:
+   ```
+   choco uninstall mypackage -f
+   ```
+
+## Customizing the Template
+
+If you need to customize the template for specific application types:
+
+1. Edit the switch statement in chocolateyInstall.ps1 to add detection for your specific application.
+2. Add appropriate silent arguments for your installer type.
+3. Extend the post-installation tests if needed.
+
+## Troubleshooting
+
+- **Installation fails**: Check the Chocolatey logs at `C:\ProgramData\chocolatey\logs\chocolatey.log`
+- **Application doesn't work after install**: Some applications require a system restart
+- **Lock file errors**: Delete any Chocolatey lock files in `C:\ProgramData\chocolatey\lib\`
+- **Path issues**: Try refreshing environment variables or restarting your command prompt
