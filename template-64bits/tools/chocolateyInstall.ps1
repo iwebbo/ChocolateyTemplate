@@ -5,7 +5,7 @@ $toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 
 # Déterminer automatiquement le nom du fichier d'installation basé sur le nom du package
 $installerExt = '[[InstallerType]]' # 'exe' ou 'msi'
-$fileLocation = Join-Path $toolsDir "[[PackageNameLower]]-x64.$installerExt"
+$fileLocation = Join-Path $toolsDir "[[PackageNameLower]].$installerExt"
 
 # Détection automatique de type d'installeur si le fichier spécifié n'existe pas
 if (!(Test-Path $fileLocation)) {
@@ -13,7 +13,7 @@ if (!(Test-Path $fileLocation)) {
     $found = $false
     
     foreach ($ext in $possibleExts) {
-        $testPath = Join-Path $toolsDir "[[PackageNameLower]]-x64.$ext"
+        $testPath = Join-Path $toolsDir "[[PackageNameLower]].$ext"
         if (Test-Path $testPath) {
             $fileLocation = $testPath
             $installerExt = $ext
